@@ -78,7 +78,20 @@ router.get("/data.json", async (req, res) => {
 // GEOLOCATION
 // Homepage displays an indicator of location 
 router.get("/", async (req, res) => {
+
   let originRes = await fetch(req, { backend: "origin_0" });
+  // Sometimes we get a 304 if the Glitch editor is open
+  if(originRes.status!==200){
+    let url = new URL(req.url);
+    // Switch out the stylesheet
+    url.pathname = "/index.html";
+
+    // Make the amended request
+    let newReq = new Request(url, req);
+    originRes = await fetch(newReq, {
+        backend: "origin_0",
+      });
+  }
   // Get the user location and country flag
   let geo = getGeolocationForIpAddress(req.ip);
   let where = geo.country_name + " " + getUnicodeFlagIcon(geo.country_code);
