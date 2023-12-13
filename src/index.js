@@ -55,7 +55,7 @@ router.get("/data.json", async (req, res) => {
   <div class="content" role="main">
     <h1 class="edge">Edge Website</h1>
     <div class="publish"></div>
-    <div>
+    <div class="intro">
     <div class="data"><p>${data.info}</p></div>
     <p>This data came back from the origin as JSON and the compute logic returned it inside an HTML page.</p>
     <p><a href="/">Home</a></p>
