@@ -2,11 +2,20 @@
 # https://developer.fastly.com/reference/fastly-toml/
 
 authors = ["<oss@fastly.com>"]
-description = "An empty application template for the Fastly Compute environment which returns a 200 OK response."
+description = "A starter kit for Fastly Compute that uses a Glitch origin website."
 language = "javascript"
 manifest_version = 3
-name = "Empty starter for JavaScript"
+name = "Compute starter kit for Glitch"
 
 [scripts]
-build = "npm run build"
-post_init = "npm install"
+  build = "npm run build"
+  post_init = "npm install"
+
+[setup]
+
+  [setup.backends]
+
+    [setup.backends.origin_0]
+      address = "origin-website.glitch.me"
+      description = "Glitch origin"
+      port = 443
