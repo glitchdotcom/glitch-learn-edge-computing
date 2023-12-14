@@ -11,12 +11,13 @@ import getUnicodeFlagIcon from "country-flag-icons/unicode";
 
 const router = new Router();
 let originResponse;
+let origin = "glitch";
 
 // Generic rules for how we handle requests
 router.use(async (req, res) => {
   // Set the origin backend we specify in the toml
   originResponse = await fetch(req, {
-    backend: "origin_0",
+    backend: origin,
   });
 });
 
@@ -32,7 +33,7 @@ router.get("/origin.css", async (req, res) => {
   let newReq = new Request(url, req);
   res.send(
     await fetch(newReq, {
-      backend: "origin_0",
+      backend: origin,
     })
   );
 });
@@ -79,7 +80,7 @@ router.get("/data.json", async (req, res) => {
 // Homepage displays an indicator of location 
 router.get("/", async (req, res) => {
 
-  let originRes = await fetch(req, { backend: "origin_0" });
+  let originRes = await fetch(req, { backend: origin });
   // Sometimes we get a 304 if the Glitch editor is open
   if(originRes.status!==200){
     let url = new URL(req.url);
@@ -89,7 +90,7 @@ router.get("/", async (req, res) => {
     // Make the amended request
     let newReq = new Request(url, req);
     originRes = await fetch(newReq, {
-        backend: "origin_0",
+        backend: origin,
       });
   }
   // Get the user location and country flag
