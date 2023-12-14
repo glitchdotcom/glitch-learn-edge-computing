@@ -4,7 +4,7 @@
 authors = ["<oss@fastly.com>"]
 description = "A starter kit for Fastly Compute that uses a Glitch origin website."
 language = "javascript"
-manifest_version = 3
+manifest_version = 2
 name = "Compute starter kit for Glitch"
 
 [scripts]
