@@ -1,8 +1,8 @@
 {
   "type": "module",
   "dependencies": {
-    "@fastly/js-compute": "^3.7.0",
-    "@fastly/expressly": "^2.2.1",
+    "@fastly/js-compute": "^1.7.1",
+    "@fastly/expressly": "^1.2.0",
     "country-flag-icons": "^1.5.7"
   },
   "scripts": {
