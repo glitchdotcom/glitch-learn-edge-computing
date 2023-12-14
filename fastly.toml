@@ -1,7 +1,7 @@
 # This file describes a Fastly Compute package. To learn more visit:
 # https://developer.fastly.com/reference/fastly-toml/
 
-authors = ["<oss@fastly.com>"]
+authors = ["A coder"]
 description = "A starter kit for Fastly Compute that uses a Glitch origin website."
 language = "javascript"
 manifest_version = 2
