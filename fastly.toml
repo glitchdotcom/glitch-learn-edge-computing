@@ -1,11 +1,13 @@
 # This file describes a Fastly Compute package. To learn more visit:
 # https://developer.fastly.com/reference/fastly-toml/
+# Glitch will write this file on project start and publish
+# If you change your Glitch project name this file will be overwritten – see HELP.md
 
-authors = ["A coder"]
-description = "A starter kit for Fastly Compute that uses a Glitch origin website."
+authors = ["Glitch"]
+description = "Fastly in Glitch"
 language = "javascript"
 manifest_version = 2
-name = "Compute starter kit for Glitch"
+name = "Learn Edge Computing starter kit for Glitch"
 
 [scripts]
   build = "npm run build"
@@ -15,7 +17,7 @@ name = "Compute starter kit for Glitch"
 
   [setup.backends]
 
-    [setup.backends.origin_0]
-      address = "origin-website.glitch.me"
-      description = "Glitch origin"
+    [setup.backends."glitch"] 
+      address = "learn-edge-computing.glitch.me"
+      description = "Glitch backend"
       port = 443
