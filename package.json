@@ -1,9 +1,23 @@
 {
+  "name": "glitch-learn-edge-computing",
+  "version": "0.1.1",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glitchdotcom/glitch-learn-edge-computing.git"
+  },
+  "author": "sue@glitch.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/glitchdotcom/glitch-learn-edge-computing/issues"
+  },
+  "homepage": "https://glitch.com/~learn-edge-computing",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@fastly/js-compute": "^1.7.1",
-    "@fastly/expressly": "^1.2.0",
-    "country-flag-icons": "^1.5.7"
+    "lodash": "^4.17.21"
   },
   "scripts": {
     "build": "js-compute-runtime ./src/index.js ./bin/main.wasm",
