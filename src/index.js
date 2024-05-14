@@ -1,109 +1,96 @@
 /**
- * THIS COMPUTE CODE RUNS ON THE FASTLY EDGE 🚀
- * The functionality here runs at an edgecompute.app domain
- * The app uses a default Glitch origin which you can remix if you like
+ * THIS COMPUTE CODE RUNS ON THE FASTLY EDGE
+ *
+ * 🚀 🚀 🚀 Make sure you deploy again whenever you make a change here 🚀 🚀 🚀
+ *
+ * Here's what happens in this website:
+ *
+ * User makes a request for the site
+ * Compute code runs on a Fastly server
+ *  - Grabs the user location from the request IP address
+ *  - Makes the request to the origin for the site assets (HTML + CSS files, images)
+ *  - Adds a cookie to the response and sends it back to the user
+ * User's browser renders the web page and writes info to the page from the cookie
+ *
  */
 
-// We're using expressly https://expressly.edgecompute.app
-import { Router } from "@fastly/expressly";
 import { getGeolocationForIpAddress } from "fastly:geolocation";
-import getUnicodeFlagIcon from "country-flag-icons/unicode";
+let _ = require("lodash");
+let where = "?",
+  greeting = "Hello!";
 
-const router = new Router();
-let originResponse;
-let origin = "glitch";
+// We use a function to handle requests to the origin
+addEventListener("fetch", (event) => event.respondWith(handleRequest(event)));
 
-// Generic rules for how we handle requests
-router.use(async (req, res) => {
-  // Set the origin backend we specify in the toml
-  originResponse = await fetch(req, {
-    backend: origin,
-  });
-});
-
-// CUSTOMIZATION
-// Return a different stylesheet at the edge
-router.get("/origin.css", async (req, res) => {
-  // We're going to request a different url
+async function handleRequest(_event) {
+  //The request the user made
+  let req = _event.request;
   let url = new URL(req.url);
-  // Switch out the stylesheet
-  url.pathname = "/edge.css";
 
-  // Make the amended request
-  let newReq = new Request(url, req);
-  res.send(
-    await fetch(newReq, {
-      backend: origin,
-    })
-  );
-});
+  //Find out the user location info
+  try {
+    let ip =
+      new URL(_event.request.url).searchParams.get("ip") ||
+      _event.client.address;
+    
+    /* 
+    Info you can get from geo
+    https://js-compute-reference-docs.edgecompute.app/docs/fastly:geolocation/getGeolocationForIpAddress
+    */
+    let geo = getGeolocationForIpAddress(ip);
 
-// SYNTHETIC CONTENT
-// If the request is for the json we send it back in a page
-router.get("/data.json", async (req, res) => {
-  console.info("Data request");
-  // Parse the JSON response from the origin
-  const data = await originResponse.json();
-  // Include the data in a page
-  let page = `<html>
-  <head>
-  <link rel="stylesheet" href="/edge.css" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  </head>
-  <body>
-  
-  <div class="wrapper">
-  <div class="content" role="main">
-    <h1 class="edge">Edge Website</h1>
-    <div class="publish"></div>
-    <div id="intro">
-    <div class="data"><p>${data.info}</p></div>
-    <p>This data came back from the origin as JSON and the compute logic returned it inside an HTML page.</p>
-    <p><a href="/">Home</a></p>
-    </div>
-    <div id="remix">
-      <a class="btn--remix" target="_top" href="https://glitch.com/edit/#!/remix/origin-website">
-        <img src="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2FLogo_Color.svg?v=1618199565140" alt="Remix" />
-        Remix your own site
-      </a>
-    </div>
-  </div>
-  </div>
-  </body>
-  </html>`;
+    // Where is the user
+    where = _.startCase(_.toLower(geo.city)) + " " + geo.country_code;
 
-  // Send the page back as the response
-  res.withStatus(originResponse.status).html(page);
-});
+    /* 
+    // 🚧 🚧 🚧 Uncomment this block then deploy again 🚧 🚧 🚧 
+    
+    // Let's get the time of day and find out how far from UTC it is
+    let displayTime = new Date().getHours();
+    let offset = geo.utc_offset;
+    displayTime += offset / 100;
+    
+    // Tailor the greeting to the user time of day
+    greeting =
+      displayTime > 4 && displayTime < 12
+        ? "Morning!"
+        : displayTime >= 12 && displayTime < 18
+        ? "Afternoon!"
+        : "Evening!";    
+    */
 
-// GEOLOCATION
-// Homepage displays an indicator of location 
-router.get("/", async (req, res) => {
+    // Change the stylesheet
+    if (url.pathname.indexOf(".css") >= 0) url.pathname = "/edge.css";
+    // Send the home request to the origin page
+    else if (url.pathname.endsWith("/")) url.pathname = "/index.html";
 
-  let originRes = await fetch(req, { backend: origin });
-  // Sometimes we get a 304 if the Glitch editor is open
-  if(originRes.status!==200){
-    let url = new URL(req.url);
-    // Switch out the stylesheet
-    url.pathname = "/index.html";
-
-    // Make the amended request
-    let newReq = new Request(url, req);
-    originRes = await fetch(newReq, {
-        backend: origin,
-      });
+    // Build a new request
+    req = new Request(url, req);
+  } catch (error) {
+    console.error(error);
+    return new Response("Internal Server Error", {
+      status: 500,
+    });
   }
-  // Get the user location and country flag
-  let geo = getGeolocationForIpAddress(req.ip);
-  let where = geo.country_name + " " + getUnicodeFlagIcon(geo.country_code);
-  // Set the location in a cookie – the page will parse and display it
-  res.cookie("where", where);
-  res.send(originRes);
-});
+  //Get the origin response
+  let backendResponse = await fetch(req, {
+    backend: "glitch",
+  });
 
-// For anything other than the routes above, just return the origin response
-router.all("(.*)", async (req, res) => {
-  res.send(originResponse);
-});
+  // Send a cookie indicating the user location and pop
+  let pop = backendResponse.headers.get("x-served-by");
+  pop = pop.substring(pop.lastIndexOf("-") + 1);
+  backendResponse.headers.set(
+    "Set-Cookie",
+    "loc=" +
+      greeting +
+      " This reponse is being delivered by the Fastly " +
+      pop +
+      " POP for a request from " +
+      where +
+      "; SameSite=None; Secure"
+  );
 
-router.listen();
+  // Send the backend response back to the client
+  return backendResponse;
+}
